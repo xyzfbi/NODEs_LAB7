@@ -1,0 +1,3 @@
+/home/layk1i/CLionProjects/NODEs_LAB7/cmake-build-debug/CMakeFiles/NODEs_LAB7.dir
+/home/layk1i/CLionProjects/NODEs_LAB7/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/layk1i/CLionProjects/NODEs_LAB7/cmake-build-debug/CMakeFiles/rebuild_cache.dir
