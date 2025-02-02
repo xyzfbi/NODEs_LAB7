@@ -18,6 +18,60 @@ node *createNode(int data) {
     temp->next = NULL;
     return temp;
 }
+void Part3_SelectionSort(node **head) {
+    node  *min, *prev_min, *temp;
+    node  *curr = *head;
+    while (curr != NULL) {
+        min = curr;
+        prev_min = NULL;
+
+        node *next = curr->next;
+        node *prev_next = curr;
+        while (next != NULL) {
+            if (next->data < min->data) {
+                min = next;
+                prev_min = prev_next;
+            }
+            prev_next = next;
+            next = next->next;
+        }
+        if (min != curr) {
+            if (prev_min != NULL) {
+                prev_min->next = min->next;
+            }
+            temp = min->next;
+            min->next = curr->next;
+            curr->next = temp;
+        }
+        curr = curr->next;
+    }
+    printf("Selection sort completed successfully!\n");
+}
+
+void Part2_DeleteNegatives(node **head) {
+    node *current = *head;
+    node *prev = NULL;
+
+    while (current != NULL) {
+        if (current->data < 0) {
+            if (prev == NULL) {
+                *head = current->next; //если первый то меняем голову
+            }
+            else {
+                prev->next = current->next; // вдругом случае обновляем ущзлы
+            }
+            node *temp = current; // для удаления
+            current = current->next;
+            free(temp);
+        }
+        else {
+            prev = current; //если не отрицательный то обновляем предыдущий и продолжаем
+            current = current->next;
+        }
+    }
+    printf("All negatives numbers deleted!\n");
+}
+
 
 void FullEnter_Part1(node **head) {
     char InputFileName[MAX_LENGTH];
@@ -71,6 +125,12 @@ void FullEnter_Part1(node **head) {
         }
     }
     fclose(fi);
+
+    printf("Part 2. Delete all negative numbers: \n");
+    Part2_DeleteNegatives(head);
+
+    printf("Part 3. Selection sort: \n");
+    Part3_SelectionSort(head);
 
     printf("Enter output filename:\n");
     scanf("%s", OutputFileName);
