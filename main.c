@@ -19,34 +19,30 @@ node *createNode(int data) {
     return temp;
 }
 void Part3_SelectionSort(node **head) {
-    node  *min, *prev_min, *temp;
-    node  *curr = *head;
-    while (curr != NULL) {
-        min = curr;
-        prev_min = NULL;
+    if (*head == NULL) return; // если пустой список
 
-        node *next = curr->next;
-        node *prev_next = curr;
-        while (next != NULL) {
-            if (next->data < min->data) {
+    node *current = *head;// сейчас равно голове перебираем с начала
+    while (current != NULL) { // перебор до конца
+        node *min = current; // минимальный сейчас
+        node *next = current->next;
+
+        while (next != NULL) { // пока не конец
+            if (next->data < min->data) { //минимум
                 min = next;
-                prev_min = prev_next;
             }
-            prev_next = next;
-            next = next->next;
+            next = next->next; //дальше
         }
-        if (min != curr) {
-            if (prev_min != NULL) {
-                prev_min->next = min->next;
-            }
-            temp = min->next;
-            min->next = curr->next;
-            curr->next = temp;
+
+        if (min != current) {
+            int temp = min->data;
+            min->data = current->data;
+            current->data = temp; //перестановка чисто по значениям
         }
-        curr = curr->next;
+
+        current = current->next;
     }
-    printf("Selection sort completed successfully!\n");
 }
+
 
 void Part2_DeleteNegatives(node **head) {
     node *current = *head;
