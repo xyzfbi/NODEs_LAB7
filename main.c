@@ -41,6 +41,7 @@ void Part3_SelectionSort(node **head) {
 
         current = current->next;
     }
+    printf("Selection sort completed successfully!\n");
 }
 
 
