@@ -18,6 +18,15 @@ node *createNode(int data) {
     temp->next = NULL;
     return temp;
 }
+void FreeMemory(node *head) {
+    while (head != NULL) {
+        node *temp = head;
+        head = head->next;
+        free(temp);
+    }
+    head = NULL;
+    printf("Memory freed\n");
+}
 void Part3_SelectionSort(node **head) {
     if (*head == NULL) return; // если пустой список
 
@@ -146,6 +155,7 @@ void FullEnter_Part1(node **head) {
         temp = temp->next;
     }
     fclose(fo);
+    FreeMemory(*head);
 }
 
 int main() {
