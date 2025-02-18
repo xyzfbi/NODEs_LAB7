@@ -1,0 +1,179 @@
+#include <LiquidCrystal_I2C.h>
+#include <Servo.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+Servo myServo;
+
+struct Node {
+  Node* next;
+  char id[4];
+  int angle;
+};
+
+bool RightID(const char* s) { //check for right input
+  if (strlen(s) != 3)
+    return false;
+
+  for (int i = 0; i < 3; i++) {
+    if (!isdigit(s[i]))
+      return false;
+  }
+  return true;
+}
+
+
+bool IDcheck(Node* head, const char* id) { //check in node is id exists
+  Node* current = head;
+  while (current) {
+    if (strcmp(current->id, id) == 0) {
+      return true;
+    }
+    current = current->next;
+  }
+  return false;
+}
+
+int checkAngle() {
+
+  int angle;
+
+  while (true) {
+    while (Serial.available() > 0) {
+      Serial.read();
+    }
+    Serial.println("Input angle between 0 and 180: ");
+    while (Serial.available() == 0) {
+      delay(10);
+    }
+
+    angle = Serial.parseInt();
+    while (Serial.available() > 0) {
+      Serial.read();
+    }
+
+    if (angle >= 0 && angle <= 180) {
+      return angle;
+    } else {
+      Serial.println("Invalid angle! You should enter value beetween 0 and 180!");
+    }
+  }
+}
+
+Node* createQueue() {
+  Node* head = nullptr;
+  char id[5];
+  int angle;
+
+  Serial.println("Input three-digit ID (press Enter to stop): ");
+  while (true) {
+    while (Serial.available() == 0) {
+      delay(10);
+    }
+
+    int bytesRead = Serial.readBytesUntil('\n', id, sizeof(id) - 1);
+    id[bytesRead] = '\0';
+    while (Serial.available() > 0) {
+      Serial.read();
+    }
+
+    if (bytesRead == 0) {
+      break;
+    }
+
+    Serial.print("ID received: ");
+    Serial.println(id);
+
+    if (RightID(id)) {
+      if (IDcheck(head, id)) {
+        Serial.println("ID already exists. You should enter another ID.");
+        continue;
+      }
+
+      angle = checkAngle();
+      Serial.print("Angle received: ");
+      Serial.println(angle);
+      Node* newNode = new Node;
+      if (!newNode) {
+        Serial.println("Memory allocation failed!");
+        return head;
+      }
+      strcpy(newNode->id, id);
+      newNode->angle = angle;
+      newNode->next = head;
+      head = newNode;
+    } else {
+      Serial.println("Invalid ID. Try again.");
+    }
+    Serial.println("Input three-digit ID (press Enter to stop): ");
+  }
+  return head;
+}
+
+void freeMemory(Node* head) {
+  Node* current = head;
+  while (current) {
+    Node* next = current->next;
+    delete current;
+    current = next;
+  }
+  head = nullptr;
+  Serial.println("Memory freed.");
+}
+
+void printInfomation(Node* head) {
+
+  Node* current = head;
+  int buttonstate = 0;
+
+  pinMode(2, INPUT);
+  lcd.setCursor(0, 0);
+  lcd.print("ID: ");
+  lcd.print(current->id);
+
+  lcd.setCursor(0, 1);
+  lcd.print("Angle: ");
+
+  lcd.print(current->angle);
+  myServo.write(current->angle);
+
+  while (current->next) {
+    buttonstate = digitalRead(2);
+    if (buttonstate == HIGH) {
+      current = current->next;
+
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("ID: ");
+      lcd.print(current->id);
+
+      lcd.setCursor(0, 1);
+      lcd.print("Angle: ");
+      lcd.print(current->angle);
+
+      myServo.write(current->angle);
+      delay(500);
+    }
+  }
+}
+
+void setup() {
+  myServo.attach(9);
+  lcd.init();
+  lcd.backlight();
+
+  Serial.begin(9600);
+  Node* head = createQueue();
+
+  if (!head) {
+    Serial.println("The list is empty.");
+  } else {
+    Serial.println("List there:");
+    printInfomation(head);
+    freeMemory(head);
+  }
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
